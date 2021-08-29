@@ -406,10 +406,9 @@ class Block(Stmt):
 class Include(Stmt):
     """A node that represents the include tag."""
 
-    fields = ("template", "with_context", "ignore_missing")
+    fields = ("template", "with_context")
     template: "Expr"
     with_context: bool
-    ignore_missing: bool
 
 
 class Import(Stmt):

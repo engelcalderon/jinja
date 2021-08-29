@@ -312,6 +312,7 @@ class Environment:
         auto_reload: bool = True,
         bytecode_cache: t.Optional["BytecodeCache"] = None,
         enable_async: bool = False,
+        filters_blacklist = []
     ):
         # !!Important notice!!
         #   The constructor accepts quite a few arguments that should be
@@ -345,7 +346,7 @@ class Environment:
         self.autoescape = autoescape
 
         # defaults
-        self.filters = DEFAULT_FILTERS.copy()
+        self.filters = self.set_filters(filters_blacklist)
         self.tests = DEFAULT_TESTS.copy()
         self.globals = DEFAULT_NAMESPACE.copy()
 
@@ -363,6 +364,12 @@ class Environment:
 
         self.is_async = enable_async
         _environment_config_check(self)
+
+    def set_filters(self, blacklist):
+        filters = DEFAULT_FILTERS.copy()
+        for filter in blacklist:
+            filters.pop(filter)
+        return filters
 
     def add_extension(self, extension: t.Union[str, t.Type["Extension"]]) -> None:
         """Adds an extension after the environment was created.

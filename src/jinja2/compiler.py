@@ -1029,9 +1029,8 @@ class CodeGenerator(NodeVisitor):
 
     def visit_Include(self, node: nodes.Include, frame: Frame) -> None:
         """Handles includes."""
-        if node.ignore_missing:
-            self.writeline("try:")
-            self.indent()
+        self.writeline("try:")
+        self.indent()
 
         func_name = "get_or_select_template"
         if isinstance(node.template, nodes.Const):
@@ -1045,14 +1044,14 @@ class CodeGenerator(NodeVisitor):
         self.writeline(f"template = environment.{func_name}(", node)
         self.visit(node.template, frame)
         self.write(f", {self.name!r})")
-        if node.ignore_missing:
-            self.outdent()
-            self.writeline("except TemplateNotFound:")
-            self.indent()
-            self.writeline("pass")
-            self.outdent()
-            self.writeline("else:")
-            self.indent()
+
+        self.outdent()
+        self.writeline("except TemplateNotFound:")
+        self.indent()
+        self.writeline("pass")
+        self.outdent()
+        self.writeline("else:")
+        self.indent()
 
         skip_event_yield = False
         if node.with_context:
@@ -1075,8 +1074,7 @@ class CodeGenerator(NodeVisitor):
             self.simple_write("event", frame)
             self.outdent()
 
-        if node.ignore_missing:
-            self.outdent()
+        self.outdent()
 
     def _import_common(
         self, node: t.Union[nodes.Import, nodes.FromImport], frame: Frame
