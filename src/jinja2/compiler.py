@@ -1177,7 +1177,10 @@ class CodeGenerator(NodeVisitor):
         loop_frame.symbols.analyze_node(node, for_branch="body")
         if node.else_:
             else_frame.symbols.analyze_node(node, for_branch="else")
-
+        
+        self.writeline('try:')
+        self.indent()
+        
         if node.test:
             loop_filter_func = self.temporary_identifier()
             test_frame.symbols.analyze_node(node, for_branch="test")
@@ -1286,13 +1289,19 @@ class CodeGenerator(NodeVisitor):
             if self.environment.is_async:
                 self.write(")")
             self.write(", loop)")
-            self.end_write(frame)
+            self.end_write(frame) 
 
         # at the end of the iteration, clear any assignments made in the
         # loop from the top level
         if self._assign_stack:
             self._assign_stack[-1].difference_update(loop_frame.symbols.stores)
-
+        
+        self.outdent()
+        self.writeline('except Exception:')
+        self.indent()
+        self.writeline('pass')
+        self.outdent()
+        
     def visit_If(self, node: nodes.If, frame: Frame) -> None:
         if_frame = frame.soft()
         self.writeline("if ", node)
